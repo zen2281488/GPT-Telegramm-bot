@@ -1,7 +1,4 @@
 import os
-import pip
-
-pip.main(['install', 'telegram'])
 import requests
 import telegram
 from telegram.ext import Updater, MessageHandler, Filters
