@@ -1,7 +1,6 @@
 import requests
 import telegram
 from telegram.ext import Updater, MessageHandler, Filters
-
 key = ""
 TOKEN = ""
 url = 'https://api.openai.com/v1/chat/completions'
