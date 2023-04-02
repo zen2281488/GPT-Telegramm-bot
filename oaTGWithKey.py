@@ -1,17 +1,34 @@
 import requests
 import telegram
 from telegram.ext import Updater, MessageHandler, Filters
-TOKEN = "Telegramm bot TOKEN"
+
+key = ""
+TOKEN = ""
 url = 'https://api.openai.com/v1/chat/completions'
-key = "API key"
 headers = {'Content-Type': 'application/json', "Authorization": f"Bearer {key}"}
 textHistory= []
 textHistoryDict = {"model": "gpt-3.5-turbo","messages":textHistory}
+
 def start_gpt(update, context):
     text = update.message.text
+    bot_username = context.bot.username
+    is_group = update.message.chat.type in ['group', 'supergroup']
+
+    if is_group and f'@{bot_username}' not in text:
+        return
+
+    if text == '/clear':
+        textHistory.clear()
+        update.message.reply_text("История сообщений очищена.")
+        return
+
     data = {
         "model": "gpt-3.5-turbo",
-        "messages": [{"role": "user", "content": text}]
+        "messages": [{"role": "user", "content": text}],
+        "temperature": 0.9,
+        "max_tokens": 4096,
+        "n": 1,
+        "stop": ["\n"]
     }
     print(textHistory)
     textHistory.append({"role": "user", "content": text})
