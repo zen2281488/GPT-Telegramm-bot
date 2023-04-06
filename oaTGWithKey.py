@@ -1,12 +1,13 @@
 import requests
 import telegram
 from telegram.ext import Updater, MessageHandler, Filters
-key = ""
 TOKEN = ""
 url = 'https://api.openai.com/v1/chat/completions'
+key = ""
 headers = {'Content-Type': 'application/json', "Authorization": f"Bearer {key}"}
-textHistory= []
+textHistory = []
 textHistoryDict = {"model": "gpt-3.5-turbo","messages":textHistory}
+MAX_HISTORY_LENGTH = 15
 
 def start_gpt(update, context):
     text = update.message.text
@@ -21,6 +22,10 @@ def start_gpt(update, context):
         update.message.reply_text("История сообщений очищена.")
         return
 
+    if len(textHistory) >= MAX_HISTORY_LENGTH:
+        textHistory.clear()
+        update.message.reply_text("История сообщений очищена из-за переполнения.")
+
     data = {
         "model": "gpt-3.5-turbo",
         "messages": [{"role": "user", "content": text}],
@@ -29,15 +34,15 @@ def start_gpt(update, context):
         "n": 1,
         "stop": ["\n"]
     }
-    print(textHistory)
+
     textHistory.append({"role": "user", "content": text})
     response = requests.post(url, headers=headers, json=textHistoryDict)
+
     if response.ok:
         response_data = response.json()
         if 'choices' in response_data and response_data['choices']:
             message = response_data['choices'][0]['message']
             textHistory.append(message)
-            # print(message)
             if 'content' in message:
                 content = message['content']
                 update.message.reply_text(content)
